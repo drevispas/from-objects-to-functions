@@ -26,6 +26,7 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:$slf4jVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    // Http client for testing
     testImplementation("org.http4k:http4k-client-jetty:$http4kVersion")
     testImplementation("com.ubertob.pesticide:pesticide-core:$pesticideCoreVersion")
     testImplementation("io.strikt:strikt-core:$striktVersion")
