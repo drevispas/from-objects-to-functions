@@ -1,16 +1,35 @@
 package org.example
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-fun main() {
-    val name = "Kotlin"
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    println("Hello, " + name + "!")
+import org.http4k.core.Method
+import org.http4k.core.Request
+import org.http4k.core.Response
+import org.http4k.core.Status
+import org.http4k.routing.bind
+import org.http4k.routing.path
+import org.http4k.routing.routes
+import org.http4k.server.Jetty
+import org.http4k.server.asServer
 
-    for (i in 1..5) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        println("i = $i")
-    }
+fun main() {
+    val app = routes(
+        "/todo/{user}/{list}" bind Method.GET to ::showList
+    )
+    app.asServer(Jetty(9090)).start()
+}
+
+fun showList(req: Request): Response {
+    val user = req.path("user")
+    val list = req.path("list")
+    val html = """
+        <html>
+            <head>
+                <meta charset="utf-8">
+            </head>
+            <body>
+                <h1>절대</h1>
+                <p>Here is the list <b>$list</b> of user <b>$user</b></p>
+            </body>
+        </html>
+    """.trimIndent()
+    return Response(Status.OK).body(html)
 }

@@ -14,3 +14,9 @@ A
 gradlew.bat,2/a/2a45a911a8f1836b0b6c5b758962572012d8f8c3
 C
 settings.gradle.kts,7/4/749edfcc96398253e5b3416184e95c46621da850
+Q
+!src/test/kotlin/SeeATodoListAT.kt,9/2/9201b6dbce2c912f62446654dc495eb5fc9ecfd4
+]
+-.idea/sonarlint/securityhotspotstore/index.pb,8/8/88a9255124c95bdc913197c120a8d560edc59c8e
+S
+#.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
