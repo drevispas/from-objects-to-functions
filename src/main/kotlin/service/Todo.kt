@@ -14,14 +14,18 @@ import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
+typealias FUN<A, B> = (A) -> (B)
+
+infix fun <A, B, C> FUN<A, B>.andThen(other: FUN<B, C>): FUN<A, C> = { a -> other(this(a)) }
+
 data class Todo(
     val lists: Map<User, List<TodoList>>
 ) : HttpHandler {
 
 
-
     val routingHttpHandler = routes(
-        "/todo/{user}/{list}" bind Method.GET to ::showList
+//        "/todo/{user}/{list}" bind Method.GET to ::showList
+        "/todo/{user}/{list}" bind Method.GET to ::fetchList
     )
 
     private fun showList(request: Request): Response {
@@ -30,6 +34,13 @@ data class Todo(
             .let(::renderHtml)
             .let(::createResponse)
     }
+
+    val processFun = ::extractListData andThen
+            ::fetchListContent andThen
+            ::renderHtml andThen
+            ::createResponse
+
+    private fun fetchList(request: Request): Response = processFun(request)
 
     override fun invoke(request: Request): Response = routingHttpHandler(request)
 
@@ -48,7 +59,8 @@ data class Todo(
 
     // TodoList -> HtmlPage
     fun renderHtml(todoList: TodoList): HtmlPage {
-        return HtmlPage("""
+        return HtmlPage(
+            """
             <html>
                 <head>
                     <meta charset="utf-8">
@@ -66,7 +78,8 @@ data class Todo(
     }
 
     fun rednerItems(items: List<TodoItem>): String {
-        return items.map {"""
+        return items.map {
+            """
             <tr><td>${it.description}</tr></td>
         """.trimIndent()
         }.joinToString("")
