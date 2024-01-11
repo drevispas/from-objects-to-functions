@@ -1,4 +1,6 @@
-import org.example.domain.FunStack
+package exercise
+
+import org.example.exercise.FunStack
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
