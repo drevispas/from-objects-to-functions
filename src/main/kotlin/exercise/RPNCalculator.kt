@@ -2,28 +2,27 @@ package org.example.exercise
 
 class RPNCalculator {
 
+    val operationMap: Map<String, (Double, Double) -> Double> = mapOf(
+        "+" to Double::plus,
+        "-" to Double::minus,
+        "*" to Double::times,
+        "/" to Double::div
+    )
 
-    fun calc(e: String): Double {
-        var funStack = FunStack<Double>()
-        val ops = e.split(" ")
-        ops.forEach {
-            val number = it.toDoubleOrNull()
-            println("n = $number")
-            funStack = if (number != null) {
-                funStack.push(number)
-            } else {
-                val (operand1, newFunStack1) = funStack.pop()
-                val (operand2, newFunStack2) = newFunStack1.pop()
-                val temp = when(it) {
-                    "+" -> operand2 + operand1
-                    "-" -> operand2 - operand1
-                    "*" -> operand2 * operand1
-                    "/" -> operand2 / operand1
-                    else -> error("Unsupported operator `it`!")
-                }
-                newFunStack2.push(temp)
-            }
+    val funStack: FunStack<Double> = FunStack()
+
+    // "5 6 2 1 + / * "
+    fun calc(expr: String): Double = expr.split(" ").fold(funStack, ::reduce).pop().first
+
+    private fun reduce(stack: FunStack<Double>, token: String): FunStack<Double> =
+        if (operationMap.containsKey(token)) {
+            val (opr1, tempStack) = stack.pop()
+            val (opr2, newStack) = tempStack.pop()
+            newStack.push(operate(token, opr2, opr1))
+        } else {
+            stack.push(token.toDouble())
         }
-        return funStack.pop().first
-    }
+
+    private fun operate(token: String, a: Double, b: Double): Double =
+        operationMap[token]?.invoke(a, b) ?: error("Invalid operator `$token`!")
 }
