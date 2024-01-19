@@ -10,11 +10,11 @@ import org.http4k.server.asServer
 
 // http4k spike
 fun main() {
-    val user = "brad"
+    val userName = "brad"
     val listName = "shopping"
-    val items = listOf("carrots", "apples", "milk")
-    val todoList = TodoList(ListName(listName), items.map(::TodoItem))
-    val lists = mapOf(User(user) to listOf(todoList))
-    val app = Todo(lists)
+    val itemNames = listOf("carrots", "apples", "milk")
+    val todoList = TodoList(ListName(listName), itemNames.map(::TodoItem))
+    val todo = mapOf(User(userName) to listOf(todoList))
+    val app = Todo(todo)
     app.asServer(Jetty(9090)).start()
 }

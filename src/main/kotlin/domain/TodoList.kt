@@ -1,5 +1,7 @@
 package org.example.domain
 
+// Todo = map of (User, list of TodoList)
+// TodoList = (ListName, list of TodoItem)
 // ex: (shopping, [carrots, milk]): 쇼핑이라는 할일리스트에는 2개의 아이템이 있음
 data class TodoList(val listName: ListName, val items:List<TodoItem>)
 
