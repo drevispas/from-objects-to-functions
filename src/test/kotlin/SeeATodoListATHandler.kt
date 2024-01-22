@@ -17,15 +17,6 @@ import strikt.assertions.isEqualTo
  * Way of chapter 3.1
  */
 
-class TodoListActor(override val userName: String) : ScenarioActor {
-
-    fun canGetItemsOfATodoList(listName:String, itemNames: List<String>, app: TodoFacade) {
-        val expected = TodoList(ListName(listName), itemNames.map(::TodoItem))
-        val actual = app.getTodoList(userName, listName)
-        expectThat(actual).isEqualTo(expected)
-    }
-}
-
 fun startTodoFacade(lists: Map<User, List<TodoList>>): TodoFacade {
     val port=8081
     val server=TodoHandler(lists).asServer(Jetty(port)).start()
@@ -44,9 +35,9 @@ class TodoHandlerItemsTest {
 
         val brad = TodoListActor(userName)
         val app = startTodoFacade(lists)
-        app.runScenario {
-            brad.canGetItemsOfATodoList(listName, shoppingItems, it)
-        }
+        app.runScenario(
+            brad.canGetItemsOfATodoList(listName, shoppingItems)
+        )
     }
 
     private fun createLists(userName: String, listName: String, itemNames: List<String>) =

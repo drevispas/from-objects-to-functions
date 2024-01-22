@@ -7,17 +7,25 @@ import org.http4k.core.Request
 import org.http4k.core.Status
 import org.junit.jupiter.api.fail
 
-class TodoFacade(val client: HttpHandler, val server: AutoCloseable) {
+interface TodoActions {
 
-    fun runScenario(steps: (TodoFacade)->Unit) {
+    fun getTodoList(userName: String, listName: String): TodoList?
+}
+
+typealias Step = TodoActions.()->Unit
+
+class TodoFacade(val client: HttpHandler, val server: AutoCloseable): TodoActions {
+
+    fun runScenario(vararg steps: Step) {
         server.use {
-            steps(this)
+            // this: TodoActions
+            steps.forEach { step -> this.step() }
         }
     }
 
     // Call server  "/todo/{user}/{list}" using client
-    fun getTodoList(user: String, listName: String): TodoList {
-        val response = client(Request(Method.GET,  "/todo/$user/$listName"))
+    override fun getTodoList(userName: String, listName: String): TodoList {
+        val response = client(Request(Method.GET,  "/todo/$userName/$listName"))
         return if (response.status== Status.OK) parseResponse(response.bodyString())
         else fail(response.toMessage())
     }
