@@ -18,10 +18,7 @@ typealias FUN<A, B> = (A) -> (B)
 
 infix fun <A, B, C> FUN<A, B>.andThen(other: FUN<B, C>): FUN<A, C> = { a -> other(this(a)) }
 
-data class Todo(
-    val lists: Map<User, List<TodoList>>
-) : HttpHandler {
-
+data class TodoHandler(val lists: Map<User, List<TodoList>>) : HttpHandler {
 
     val routingHttpHandler = routes(
 //        "/todo/{user}/{list}" bind Method.GET to ::showList
