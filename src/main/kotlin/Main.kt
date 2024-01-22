@@ -4,7 +4,7 @@ import org.example.domain.ListName
 import org.example.domain.TodoItem
 import org.example.domain.TodoList
 import org.example.domain.User
-import org.example.service.Todo
+import org.example.service.TodoHandler
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 
@@ -15,6 +15,6 @@ fun main() {
     val itemNames = listOf("carrots", "apples", "milk")
     val todoList = TodoList(ListName(listName), itemNames.map(::TodoItem))
     val todo = mapOf(User(userName) to listOf(todoList))
-    val app = Todo(todo)
+    val app = TodoHandler(todo)
     app.asServer(Jetty(9090)).start()
 }
