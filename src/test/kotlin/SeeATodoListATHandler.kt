@@ -10,16 +10,14 @@ import org.http4k.filter.ClientFilters
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import org.junit.jupiter.api.Test
-import strikt.api.expectThat
-import strikt.assertions.isEqualTo
 
 /**
  * Way of chapter 3.1
  */
 
 fun startTodoFacade(lists: Map<User, List<TodoList>>): TodoFacade {
-    val port=8081
-    val server=TodoHandler(lists).asServer(Jetty(port)).start()
+    val port = 8081
+    val server = TodoHandler(lists).asServer(Jetty(port)).start()
     val client = ClientFilters.SetBaseUriFrom(Uri.of("http://localhost:$port/")).then(JettyClient())
     return TodoFacade(client, server)
 }
@@ -30,7 +28,7 @@ class TodoHandlerItemsTest {
     fun `User gets the items of a todo list`() {
         val userName = "brad"
         val listName = "shopping"
-        val shoppingItems = listOf("carrot","milk")
+        val shoppingItems = listOf("carrot", "milk")
         val lists = createLists(userName, listName, shoppingItems)
 
         val brad = TodoListActor(userName)

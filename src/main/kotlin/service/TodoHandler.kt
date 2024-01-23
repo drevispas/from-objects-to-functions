@@ -14,48 +14,46 @@ import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
+// 타입 A를 받아 타입 B로 전환하는 함수가 FUN<A,B>
 typealias FUN<A, B> = (A) -> (B)
 
+// A->B(this), B->C(other) 사이에 andThen을 적용하면 A->C 함수가 됨. 입력은 타입 A, 출력은 타입 C
 infix fun <A, B, C> FUN<A, B>.andThen(other: FUN<B, C>): FUN<A, C> = { a -> other(this(a)) }
 
 data class TodoHandler(val lists: Map<User, List<TodoList>>) : HttpHandler {
 
+    // HttpHandler 위해 구현할 함수
+    override fun invoke(request: Request): Response = routingHttpHandler(request)
+
     val routingHttpHandler = routes(
-//        "/todo/{user}/{list}" bind Method.GET to ::showList
         "/todo/{user}/{list}" bind Method.GET to ::fetchList
     )
 
-    private fun showList(request: Request): Response {
-        return request.let(::extractListData)
-            .let(::fetchListContent)
-            .let(::renderHtml)
-            .let(::createResponse)
-    }
+    private fun fetchList(request: Request): Response = showList(request)
 
-    val processFun = ::extractListData andThen
+    // andThen 연산자 사용에 주목
+    // 요청값부터 응답값까지의 변화를 함수의 연결로 표현함. Request -> ... -> Response
+    private val showList = ::extractListData andThen
             ::fetchListContent andThen
             ::renderHtml andThen
             ::createResponse
 
-    private fun fetchList(request: Request): Response = processFun(request)
-
-    override fun invoke(request: Request): Response = routingHttpHandler(request)
-
     // Request -> {user, listName}
-    fun extractListData(request: Request): Pair<User, ListName> {
+    private fun extractListData(request: Request): Pair<User, ListName> {
         val user = request.path("user").orEmpty().let(::User)
         val list = request.path("list").orEmpty().let(::ListName)
         return user to list
     }
 
     // {user, listName} -> TodoList
-    fun fetchListContent(listId: Pair<User, ListName>): TodoList {
+    private fun fetchListContent(listId: Pair<User, ListName>): TodoList {
         return lists[listId.first]?.first { it.listName == listId.second }
             ?: error("List `${listId.second}` not found")
     }
 
     // TodoList -> HtmlPage
-    fun renderHtml(todoList: TodoList): HtmlPage {
+    private fun renderHtml(todoList: TodoList): HtmlPage {
+        // 상태 변이 결과가 html인데 이것도 객체 하나로 표현함
         return HtmlPage(
             """
             <html>
@@ -74,7 +72,7 @@ data class TodoHandler(val lists: Map<User, List<TodoList>>) : HttpHandler {
         )
     }
 
-    fun rednerItems(items: List<TodoItem>): String {
+    private fun rednerItems(items: List<TodoItem>): String {
         return items.map {
             """
             <tr><td>${it.description}</tr></td>
@@ -83,7 +81,7 @@ data class TodoHandler(val lists: Map<User, List<TodoList>>) : HttpHandler {
     }
 
     // HtmlPage -> Response
-    fun createResponse(htmlPage: HtmlPage): Response {
+    private fun createResponse(htmlPage: HtmlPage): Response {
         return Response(Status.OK).body(htmlPage.raw)
     }
 }
