@@ -28,6 +28,7 @@ class TodoFacade(val client: HttpHandler, val server: AutoCloseable) : TodoActio
         else fail(response.toMessage())
     }
 
+    // Facade 객체를 receiver로 Actor에게 받은 lambda를 실행함
     fun runScenario(vararg steps: Step) {
         server.use {
             // this: TodoActions

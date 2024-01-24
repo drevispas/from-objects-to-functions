@@ -1,6 +1,7 @@
 package org.example.service
 
 import org.example.domain.ListName
+import org.example.domain.TodoHub
 import org.example.domain.TodoItem
 import org.example.domain.TodoList
 import org.example.domain.User
@@ -20,7 +21,7 @@ typealias FUN<A, B> = (A) -> (B)
 // A->B(this), B->C(other) 사이에 andThen을 적용하면 A->C 함수가 됨. 입력은 타입 A, 출력은 타입 C
 infix fun <A, B, C> FUN<A, B>.andThen(other: FUN<B, C>): FUN<A, C> = { a -> other(this(a)) }
 
-data class TodoHandler(val lists: Map<User, List<TodoList>>) : HttpHandler {
+data class TodoHandler(val hub: TodoHub) : HttpHandler {
 
     // HttpHandler 위해 구현할 함수
     override fun invoke(request: Request): Response = routingHttpHandler(request)
@@ -47,7 +48,7 @@ data class TodoHandler(val lists: Map<User, List<TodoList>>) : HttpHandler {
 
     // {user, listName} -> TodoList
     private fun fetchListContent(listId: Pair<User, ListName>): TodoList {
-        return lists[listId.first]?.first { it.listName == listId.second }
+        return hub.getList(listId.first, listId.second)
             ?: error("List `${listId.second}` not found")
     }
 
