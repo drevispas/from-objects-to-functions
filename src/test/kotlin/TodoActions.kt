@@ -7,27 +7,33 @@ import org.http4k.core.Request
 import org.http4k.core.Status
 import org.junit.jupiter.api.fail
 
+// Actions는 request 받아서 API를 호출하는 역할
 interface TodoActions {
 
     fun getTodoList(userName: String, listName: String): TodoList?
 }
 
-typealias Step = TodoActions.()->Unit
+// Step은 Actions가 수행하는 테스트 하위의 세부 태스크
+typealias Step = TodoActions.() -> Unit
 
-class TodoFacade(val client: HttpHandler, val server: AutoCloseable): TodoActions {
-
-    fun runScenario(vararg steps: Step) {
-        server.use {
-            // this: TodoActions
-            steps.forEach { step -> this.step() }
-        }
-    }
+// 생성자로 client, server를 받음
+// Actions를 상속해서 api 호출부를 구현함
+// Facade는 Actor의 API 요청을 대행해 줌
+class TodoFacade(val client: HttpHandler, val server: AutoCloseable) : TodoActions {
 
     // Call server  "/todo/{user}/{list}" using client
     override fun getTodoList(userName: String, listName: String): TodoList {
-        val response = client(Request(Method.GET,  "/todo/$userName/$listName"))
-        return if (response.status== Status.OK) parseResponse(response.bodyString())
+        val response = client(Request(Method.GET, "/todo/$userName/$listName"))
+        return if (response.status == Status.OK) parseResponse(response.bodyString())
         else fail(response.toMessage())
+    }
+
+    // Facade 객체를 receiver로 Actor에게 받은 lambda를 실행함
+    fun runScenario(vararg steps: Step) {
+        server.use {
+            // this: TodoActions
+            steps.forEach { step -> step(this) }
+        }
     }
 
     // API 응답인 HTML을 TodoList로 되돌린다.
